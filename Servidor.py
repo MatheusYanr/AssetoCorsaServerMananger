@@ -1,5 +1,5 @@
-﻿#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+﻿
+
 """
 AC Server Manager v4.0 - Enhanced Edition
 Gerenciador visual completo para Assetto Corsa
@@ -17,9 +17,9 @@ import urllib.request
 import zipfile
 import ssl
 
-# ================================================================
-#  AUTO-INSTALACAO DE DEPENDENCIAS
-# ================================================================
+
+
+
 def auto_install_packages():
     required = {"ttkbootstrap": "ttkbootstrap"}
     for module_name, pip_name in required.items():
@@ -46,7 +46,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, simpledialog
 
 import ttkbootstrap as ttkb
-from ttkbootstrap.constants import *  # noqa: F403
+from ttkbootstrap.constants import *  
 
 try:
     from ttkbootstrap.widgets import ToolTip
@@ -58,9 +58,9 @@ except ImportError:
             def __init__(self, *a, **kw):
                 pass
 
-# ================================================================
-#  CONSTANTES
-# ================================================================
+
+
+
 APP_NAME = "AC Server Manager"
 APP_VERSION = "4.0"
 CONFIG_FILE = "ac_manager_config.json"
@@ -84,7 +84,7 @@ LISTBOX_KW = dict(
     bg="#2b2b2b", fg="#e0e0e0",
     selectbackground="#375a7f", selectforeground="#ffffff",
     font=("Segoe UI", 10), relief="flat", borderwidth=0,
-    highlightthickness=1, highlightcolor="#375a7f",
+    highlightthickness=1, highlightcolor="#375a7f"
 )
 
 
@@ -95,19 +95,19 @@ def is_admin():
         return False
 
 
-# ================================================================
-#  CLASSE PRINCIPAL
-# ================================================================
+
+
+
 class ACServerManager:
     def __init__(self, root: ttkb.Window):
         self.root = root
         self.root.title(f"{APP_NAME}  v{APP_VERSION}")
 
-        # Caminhos
+        
         self.game_path = tk.StringVar()
         self.server_path = tk.StringVar()
 
-        # Servidor
+        
         self.server_name = tk.StringVar(value="Meu Servidor AC")
         self.server_password = tk.StringVar()
         self.admin_password = tk.StringVar(value="admin1234")
@@ -127,13 +127,13 @@ class ACServerManager:
         self.voting_quorum = tk.IntVar(value=80)
         self.vote_duration = tk.IntVar(value=20)
 
-        # Pista
+        
         self.track_var = tk.StringVar()
         self.layout_var = tk.StringVar()
         self.pit_boxes_info = tk.StringVar(value="--")
         self.track_layouts = {}
 
-        # Sessoes
+        
         self.booking_enabled = tk.BooleanVar(value=False)
         self.booking_time = tk.IntVar(value=5)
         self.practice_enabled = tk.BooleanVar(value=True)
@@ -147,7 +147,7 @@ class ACServerManager:
         self.reversed_grid = tk.IntVar(value=0)
         self.qualify_max_wait = tk.IntVar(value=120)
 
-        # Realismo
+        
         self.abs_mode = tk.StringVar(value="1 - Fabrica")
         self.tc_mode = tk.StringVar(value="1 - Fabrica")
         self.stability_allowed = tk.BooleanVar(value=False)
@@ -167,13 +167,17 @@ class ACServerManager:
         self.pit_window_start = tk.IntVar(value=0)
         self.pit_window_end = tk.IntVar(value=0)
 
-        # CSP Extra Options (pit limiter real)
+        # AssettoServer extra_cfg.yml
+        self.use_steam_auth = tk.BooleanVar(value=True)
+        self.checksum_check = tk.BooleanVar(value=True)
+
+        
         self.csp_disable_pit_limiter = tk.BooleanVar(value=False)
         self.csp_pit_speed = tk.IntVar(value=80)
         self.csp_keep_collisions = tk.BooleanVar(value=False)
         self.csp_allow_wrong_way = tk.BooleanVar(value=True)
 
-        # Clima
+        
         self.weather_type = tk.StringVar(value="3_clear")
         self.temp_ambient = tk.IntVar(value=26)
         self.temp_var_ambient = tk.IntVar(value=2)
@@ -186,13 +190,13 @@ class ACServerManager:
         self.wind_dir = tk.IntVar(value=30)
         self.wind_var = tk.IntVar(value=15)
 
-        # Pista Dinamica
+        
         self.dyn_start = tk.IntVar(value=95)
         self.dyn_random = tk.IntVar(value=1)
         self.dyn_lap_gain = tk.IntVar(value=15)
         self.dyn_transfer = tk.IntVar(value=90)
 
-        # Internos
+        
         self.server_cars = []
         self.all_game_cars = []
         self.server_process = None
@@ -203,11 +207,11 @@ class ACServerManager:
         if self.game_path.get() and self.server_path.get():
             self._refresh_all()
 
-    # ============================================================
-    #  UI CONSTRUCTION
-    # ============================================================
+    
+    
+    
     def _build_ui(self):
-        # Header
+        
         hdr = ttkb.Frame(self.root, bootstyle="dark")
         hdr.pack(fill="x")
         ttkb.Label(
@@ -215,14 +219,14 @@ class ACServerManager:
             font=("Segoe UI", 18, "bold"), bootstyle="inverse-dark",
         ).pack(pady=10)
 
-        # Status Bar
+        
         self.status_var = tk.StringVar(value="Pronto")
         ttkb.Label(
             self.root, textvariable=self.status_var,
             bootstyle="inverse-secondary", anchor="w", padding=(10, 4),
         ).pack(fill="x", side="bottom")
 
-        # Bottom Action Bar
+        
         action = ttkb.Frame(self.root, padding=8)
         action.pack(fill="x", side="bottom")
 
@@ -251,7 +255,7 @@ class ACServerManager:
             command=self._open_folder, width=16,
         ).pack(side="right", padx=4)
 
-        # Notebook
+        
         self.nb = ttkb.Notebook(self.root, bootstyle="dark")
         self.nb.pack(expand=True, fill="both", padx=6, pady=(4, 0))
 
@@ -268,7 +272,7 @@ class ACServerManager:
             self.nb.add(frame, text=label)
             builder(frame)
 
-    # -- TAB 1: Instalacao ---
+    
     def _build_tab_setup(self, parent):
         frm = ttk.LabelFrame(parent, text="  Caminhos  ", padding=15)
         frm.pack(pady=15, padx=15, fill="x")
@@ -304,7 +308,7 @@ class ACServerManager:
             "5. Clique em 'SALVAR TUDO' e depois 'Iniciar Servidor'"
         ), bootstyle="secondary", wraplength=800, justify="left").pack()
 
-    # -- TAB 2: Servidor ---
+    
     def _build_tab_server(self, parent):
         top = ttkb.Frame(parent)
         top.pack(fill="both", expand=True, padx=10, pady=8)
@@ -345,6 +349,14 @@ class ACServerManager:
 
         ttkb.Separator(col2, orient="horizontal").pack(fill="x", pady=10)
 
+        self._check_row(col2, "Validacao Steam (Auth)", self.use_steam_auth)
+        ToolTip(col2.winfo_children()[-1], text="Valida o ticket Steam dos jogadores ao conectar.\nDESATIVE para jogar via Radmin VPN / LAN virtual.\nSe ativado, jogadores em rede virtual serao kickados apos ~15s.")
+
+        self._check_row(col2, "Checksum (Verif. Arquivos)", self.checksum_check)
+        ToolTip(col2.winfo_children()[-1], text="Verifica se os arquivos de carros/pistas do jogador sao identicos aos do servidor.\nDESATIVE se jogadores com mods estao sendo kickados por 'checksum check'.\nUtil quando usam versoes ligeiramente diferentes do mesmo mod.")
+
+        ttkb.Separator(col2, orient="horizontal").pack(fill="x", pady=10)
+
         self._spin_row(col2, "Client Send Hz:", self.client_send_hz, 10, 60)
         ToolTip(col2.winfo_children()[-1], text="Frequencia de envio de dados para cada jogador (pacotes por segundo).\nValor maior = jogo mais fluido, mas usa mais banda de internet.\nRecomendado: 18 (padrao). Aumente para 30+ se tiver boa conexao.")
         self._spin_row(col2, "Threads:", self.num_threads, 1, 8)
@@ -356,7 +368,7 @@ class ACServerManager:
         self._spin_row(col2, "Duracao Voto (s):", self.vote_duration, 5, 120)
         ToolTip(col2.winfo_children()[-1], text="Tempo em segundos que uma votacao fica aberta.\nDepois desse tempo, a votacao encerra automaticamente.")
 
-    # -- TAB 3: Carros ---
+    
     def _build_tab_cars(self, parent):
         main = ttkb.Frame(parent)
         main.pack(fill="both", expand=True, padx=10, pady=8)
@@ -402,7 +414,7 @@ class ACServerManager:
         sb2.pack(side="right", fill="y", padx=(0, 5), pady=5)
         self.lb_grid.pack(fill="both", expand=True, padx=(5, 0), pady=5)
 
-    # -- TAB 4: Pista & Sessoes ---
+    
     def _build_tab_track(self, parent):
         top = ttkb.Frame(parent)
         top.pack(fill="both", expand=True, padx=10, pady=8)
@@ -466,7 +478,7 @@ class ACServerManager:
         self._spin_row(col2, "Race Over Time (s):", self.race_over_time, 30, 600)
         self._spin_row(col2, "Tela Resultado (s):", self.result_screen_time, 10, 300)
 
-    # -- TAB 5: Realismo ---
+    
     def _build_tab_realism(self, parent):
         top = ttkb.Frame(parent)
         top.pack(fill="both", expand=True, padx=10, pady=8)
@@ -549,7 +561,7 @@ class ACServerManager:
         ttkb.Label(c3, text="Separados por ; (ex: V;E;H;M;S)",
                    bootstyle="secondary", font=("Segoe UI", 8)).pack(anchor="w")
 
-    # -- TAB 6: Clima ---
+    
     def _build_tab_weather(self, parent):
         top = ttkb.Frame(parent)
         top.pack(fill="both", expand=True, padx=10, pady=8)
@@ -604,9 +616,9 @@ class ACServerManager:
         self._spin_row(c3, "Transfer Sessao (%):", self.dyn_transfer, 0, 100)
         ToolTip(c3.winfo_children()[-1], text="% do grip mantido entre sessoes")
 
-    # ============================================================
-    #  UI HELPERS
-    # ============================================================
+    
+    
+    
     def _path_row(self, parent, label, variable):
         f = ttkb.Frame(parent)
         f.pack(fill="x", pady=4)
@@ -633,9 +645,9 @@ class ACServerManager:
         ttkb.Checkbutton(f, text=label, variable=variable,
                          bootstyle="success-round-toggle").pack(anchor="w")
 
-    # ============================================================
-    #  TRACK LOGIC
-    # ============================================================
+    
+    
+    
     def _refresh_tracks(self):
         tracks_dir = os.path.join(self.game_path.get(), "content", "tracks")
         if not os.path.isdir(tracks_dir):
@@ -698,9 +710,9 @@ class ACServerManager:
         except Exception:
             return 0
 
-    # ============================================================
-    #  CAR LOGIC
-    # ============================================================
+    
+    
+    
     def _filter_cars(self, *_):
         term = self.search_var.get().lower()
         self.lb_game.delete(0, tk.END)
@@ -765,9 +777,9 @@ class ACServerManager:
                 self.nb.tab(i, text=f"  Carros ({total})  ")
                 break
 
-    # ============================================================
-    #  REFRESH
-    # ============================================================
+    
+    
+    
     def _refresh_all(self):
         self.lb_game.delete(0, tk.END)
         self.all_game_cars = []
@@ -783,9 +795,9 @@ class ACServerManager:
         self._load_server_config()
         self._update_grid_ui()
 
-    # ============================================================
-    #  BROWSE
-    # ============================================================
+    
+    
+    
     def _browse(self, var):
         folder = filedialog.askdirectory()
         if folder:
@@ -793,9 +805,9 @@ class ACServerManager:
             self._save_config()
             self._refresh_all()
 
-    # ============================================================
-    #  CARREGAR CONFIG DO SERVIDOR (INI)
-    # ============================================================
+    
+    
+    
     def _load_server_config(self):
         """Le server_cfg.ini e entry_list.ini do servidor e carrega no app."""
         srv = self.server_path.get()
@@ -808,14 +820,14 @@ class ACServerManager:
 
         try:
             config = configparser.ConfigParser(strict=False)
-            config.optionxform = str  # preserva maiusculas
+            config.optionxform = str  
             config.read(cfg_path, encoding="utf-8")
 
-            # --- [SERVER] ---
+            
             if config.has_section("SERVER"):
                 s = config["SERVER"]
 
-                # Strings
+                
                 str_map = {
                     "NAME": self.server_name,
                     "PASSWORD": self.server_password,
@@ -827,7 +839,7 @@ class ACServerManager:
                     if key in s:
                         var.set(s[key])
 
-                # Inteiros
+                
                 int_map = {
                     "UDP_PORT": self.udp_port,
                     "TCP_PORT": self.tcp_port,
@@ -861,14 +873,14 @@ class ACServerManager:
                         except (ValueError, tk.TclError):
                             pass
 
-                # Float
+                
                 if "SUN_ANGLE" in s:
                     try:
                         self.sun_angle.set(float(s["SUN_ANGLE"]))
                     except (ValueError, tk.TclError):
                         pass
 
-                # Booleans (1/0)
+                
                 bool_map = {
                     "REGISTER_TO_LOBBY": self.register_lobby,
                     "PICKUP_MODE_ENABLED": self.pickup_mode,
@@ -886,26 +898,26 @@ class ACServerManager:
                         except tk.TclError:
                             pass
 
-                # RACE_GAS_PENALTY_DISABLED e invertido
+                
                 if "RACE_GAS_PENALTY_DISABLED" in s:
                     try:
                         self.race_gas_penalty.set(s["RACE_GAS_PENALTY_DISABLED"].strip() == "0")
                     except tk.TclError:
                         pass
 
-                # ABS / TC
+                
                 abs_tc_map = {"0": "0 - Desligado", "1": "1 - Fabrica", "2": "2 - Forcado Ligado"}
                 if "ABS_ALLOWED" in s:
                     self.abs_mode.set(abs_tc_map.get(s["ABS_ALLOWED"].strip(), self.abs_mode.get()))
                 if "TC_ALLOWED" in s:
                     self.tc_mode.set(abs_tc_map.get(s["TC_ALLOWED"].strip(), self.tc_mode.get()))
 
-                # Start Rule
+                
                 start_map = {str(i): START_RULES[i] for i in range(len(START_RULES))}
                 if "START_RULE" in s:
                     self.start_rule.set(start_map.get(s["START_RULE"].strip(), self.start_rule.get()))
 
-                # Pista e layout
+                
                 track_name = s.get("TRACK", "").strip()
                 config_track = s.get("CONFIG_TRACK", "").strip()
                 if track_name:
@@ -915,7 +927,7 @@ class ACServerManager:
                         self.layout_var.set(config_track)
                         self._on_layout_change()
 
-            # --- [DYNAMIC_TRACK] ---
+            
             if config.has_section("DYNAMIC_TRACK"):
                 dt = config["DYNAMIC_TRACK"]
                 for key, var in [
@@ -930,7 +942,7 @@ class ACServerManager:
                         except (ValueError, tk.TclError):
                             pass
 
-            # --- Sessoes ---
+            
             self.booking_enabled.set(config.has_section("BOOKING"))
             if config.has_section("BOOKING") and "TIME" in config["BOOKING"]:
                 try:
@@ -965,7 +977,7 @@ class ACServerManager:
                     except (ValueError, tk.TclError):
                         pass
 
-            # --- [WEATHER_0] ---
+            
             if config.has_section("WEATHER_0"):
                 w = config["WEATHER_0"]
                 if "GRAPHICS" in w:
@@ -986,7 +998,7 @@ class ACServerManager:
                         except (ValueError, tk.TclError):
                             pass
 
-            # --- CSP Extra Options ---
+            
             csp_path = os.path.join(srv, "cfg", "csp_extra_options.ini")
             if os.path.exists(csp_path):
                 csp = configparser.ConfigParser(strict=False)
@@ -1017,7 +1029,23 @@ class ACServerManager:
                         except tk.TclError:
                             pass
 
-            # --- Entry List ---
+            # Carregar extra_cfg.yml (AssettoServer)
+            extra_cfg_path = os.path.join(srv, "extra_cfg.yml")
+            if os.path.exists(extra_cfg_path):
+                try:
+                    with open(extra_cfg_path, "r", encoding="utf-8") as f:
+                        for line in f:
+                            stripped = line.strip()
+                            if stripped.startswith("UseSteamAuth"):
+                                val = stripped.split(":", 1)[1].strip().lower()
+                                self.use_steam_auth.set(val == "true")
+                            elif stripped.startswith("EnableChecksums"):
+                                val = stripped.split(":", 1)[1].strip().lower()
+                                self.checksum_check.set(val == "true")
+                except Exception:
+                    pass
+
+            
             self._load_entry_list()
 
             self.status_var.set("Configuracoes carregadas do servidor!")
@@ -1039,7 +1067,7 @@ class ACServerManager:
             config.optionxform = str
             config.read(entry_path, encoding="utf-8")
 
-            # Conta quantidade de cada modelo
+            
             car_counts = {}
             for section in sorted(config.sections()):
                 if section.startswith("CAR_"):
@@ -1052,9 +1080,9 @@ class ACServerManager:
         except Exception as e:
             print(f"Erro ao carregar entry list: {e}")
 
-    # ============================================================
-    #  CONFIG SAVE / LOAD
-    # ============================================================
+    
+    
+    
     def _save_config(self):
         data = {}
         for name in dir(self):
@@ -1095,9 +1123,9 @@ class ACServerManager:
         except Exception:
             pass
 
-    # ============================================================
-    #  GERAR server_cfg.ini
-    # ============================================================
+    
+    
+    
     def _save_all(self):
         srv = self.server_path.get()
         if not srv:
@@ -1230,7 +1258,7 @@ WIND_VARIATION_DIRECTION={self.wind_var.get()}
             with open(cfg_path, "w", encoding="utf-8") as f:
                 f.write(content)
 
-            # Gerar csp_extra_options.ini
+            
             csp_content = f"""[PITS_SPEED_LIMITER]
 DISABLE_FORCED={1 if self.csp_disable_pit_limiter.get() else 0}
 SPEED_KMH={self.csp_pit_speed.get()}
@@ -1242,6 +1270,36 @@ ALLOW_WRONG_WAY={1 if self.csp_allow_wrong_way.get() else 0}
             csp_path = os.path.join(cfg_dir, "csp_extra_options.ini")
             with open(csp_path, "w", encoding="utf-8") as f:
                 f.write(csp_content)
+
+            # Gerar extra_cfg.yml (AssettoServer)
+            extra_cfg_path = os.path.join(srv, "extra_cfg.yml")
+            # Se ja existe, atualiza apenas o UseSteamAuth
+            existing_lines = []
+            if os.path.exists(extra_cfg_path):
+                with open(extra_cfg_path, "r", encoding="utf-8") as f:
+                    existing_lines = f.readlines()
+            steam_val = "true" if self.use_steam_auth.get() else "false"
+            checksum_val = "true" if self.checksum_check.get() else "false"
+            found_steam = False
+            found_checksum = False
+            new_lines = []
+            for line in existing_lines:
+                if line.strip().startswith("UseSteamAuth"):
+                    new_lines.append(f"UseSteamAuth: {steam_val}\n")
+                    found_steam = True
+                elif line.strip().startswith("EnableChecksums"):
+                    new_lines.append(f"EnableChecksums: {checksum_val}\n")
+                    found_checksum = True
+                else:
+                    new_lines.append(line)
+            if not found_steam:
+                if not new_lines:
+                    new_lines.append("# AssettoServer Extra Configuration\n")
+                new_lines.append(f"UseSteamAuth: {steam_val}\n")
+            if not found_checksum:
+                new_lines.append(f"EnableChecksums: {checksum_val}\n")
+            with open(extra_cfg_path, "w", encoding="utf-8") as f:
+                f.writelines(new_lines)
 
             self._copy_track_content()
 
@@ -1277,9 +1335,9 @@ ALLOW_WRONG_WAY={1 if self.csp_allow_wrong_way.get() else 0}
                 except Exception:
                     pass
 
-    # ============================================================
-    #  GERAR entry_list.ini
-    # ============================================================
+    
+    
+    
     def _gen_entry_list(self):
         srv = self.server_path.get()
         if not srv:
@@ -1326,9 +1384,9 @@ ALLOW_WRONG_WAY={1 if self.csp_allow_wrong_way.get() else 0}
         except Exception as e:
             messagebox.showerror("Erro", f"Falha ao gerar entry list:\n{e}")
 
-    # ============================================================
-    #  INSTALAR SERVIDOR
-    # ============================================================
+    
+    
+    
     def _install_server(self):
         dest = self.server_path.get()
         src_game = self.game_path.get()
@@ -1393,9 +1451,9 @@ ALLOW_WRONG_WAY={1 if self.csp_allow_wrong_way.get() else 0}
             self.status_var.set("Erro na instalacao")
             messagebox.showerror("Erro", f"Falha na instalacao:\n{e}")
 
-    # ============================================================
-    #  INICIAR SERVIDOR
-    # ============================================================
+    
+    
+    
     def _start_server(self):
         srv = self.server_path.get()
         if not srv:
@@ -1425,7 +1483,7 @@ ALLOW_WRONG_WAY={1 if self.csp_allow_wrong_way.get() else 0}
 
     def _stop_server(self):
         stopped = False
-        # Tenta matar pelo processo guardado
+        
         if self.server_process and self.server_process.poll() is None:
             try:
                 self.server_process.terminate()
@@ -1439,7 +1497,7 @@ ALLOW_WRONG_WAY={1 if self.csp_allow_wrong_way.get() else 0}
                     pass
             self.server_process = None
 
-        # Tambem tenta matar por nome (caso o CMD tenha aberto separado)
+        
         for exe_name in ["AssettoServer.exe", "acServer.exe"]:
             try:
                 result = subprocess.run(
@@ -1461,7 +1519,7 @@ ALLOW_WRONG_WAY={1 if self.csp_allow_wrong_way.get() else 0}
     def _restart_server(self):
         self.status_var.set("Reiniciando servidor...")
         self.root.update()
-        # Para o servidor atual
+        
         if self.server_process and self.server_process.poll() is None:
             try:
                 self.server_process.terminate()
@@ -1478,12 +1536,12 @@ ALLOW_WRONG_WAY={1 if self.csp_allow_wrong_way.get() else 0}
                                capture_output=True, text=True)
             except Exception:
                 pass
-        # Espera um momento e inicia novamente
+        
         self.root.after(1500, self._start_server)
 
-    # ============================================================
-    #  ABRIR PASTA
-    # ============================================================
+    
+    
+    
     def _open_folder(self):
         srv = self.server_path.get()
         if srv and os.path.isdir(srv):
@@ -1492,9 +1550,9 @@ ALLOW_WRONG_WAY={1 if self.csp_allow_wrong_way.get() else 0}
             messagebox.showwarning("Aviso", "Pasta do servidor nao definida ou nao existe!")
 
 
-# ================================================================
-#  MAIN
-# ================================================================
+
+
+
 if __name__ == "__main__":
     try:
         root = ttkb.Window(
